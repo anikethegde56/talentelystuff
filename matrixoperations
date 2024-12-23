@@ -1,0 +1,248 @@
+public class MatrixOperations {
+
+    public static void main(String[] args) {
+        double[][] matrixA = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+
+        double[][] matrixB = {
+            {9, 8, 7},
+            {6, 5, 4},
+            {3, 2, 1}
+        };
+
+        MatrixOperations matrixOps = new MatrixOperations();
+
+        System.out.println("Matrix A:");
+        matrixOps.printMatrix(matrixA);
+
+        System.out.println("Matrix B:");
+        matrixOps.printMatrix(matrixB);
+
+        // Addition
+        double[][] sum = matrixOps.addMatrices(matrixA, matrixB);
+        System.out.println("Matrix A + Matrix B:");
+        matrixOps.printMatrix(sum);
+
+        // Subtraction
+        double[][] difference = matrixOps.subtractMatrices(matrixA, matrixB);
+        System.out.println("Matrix A - Matrix B:");
+        matrixOps.printMatrix(difference);
+
+        // Multiplication
+        double[][] product = matrixOps.multiplyMatrices(matrixA, matrixB);
+        System.out.println("Matrix A * Matrix B:");
+        matrixOps.printMatrix(product);
+
+        // Transpose of Matrix A
+        double[][] transposeA = matrixOps.transposeMatrix(matrixA);
+        System.out.println("Transpose of Matrix A:");
+        matrixOps.printMatrix(transposeA);
+
+        // Determinant of Matrix A
+        double determinantA = matrixOps.determinant(matrixA);
+        System.out.println("Determinant of Matrix A: " + determinantA);
+
+        // Inverse of Matrix A
+        double[][] inverseA = matrixOps.inverseMatrix(matrixA);
+        System.out.println("Inverse of Matrix A:");
+        matrixOps.printMatrix(inverseA);
+    }
+
+    // Method to print a matrix
+    public void printMatrix(double[][] matrix) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Method to add two matrices
+    public double[][] addMatrices(double[][] matrixA, double[][] matrixB) {
+        if (matrixA.length != matrixB.length || matrixA[0].length != matrixB[0].length) {
+            throw new IllegalArgumentException("Matrices must be of the same size for addition.");
+        }
+
+        double[][] result = new double[matrixA.length][matrixA[0].length];
+
+        for (int i = 0; i < matrixA.length; i++) {
+            for (int j = 0; j < matrixA[i].length; j++) {
+                result[i][j] = matrixA[i][j] + matrixB[i][j];
+            }
+        }
+
+        return result;
+    }
+
+    // Method to subtract two matrices
+    public double[][] subtractMatrices(double[][] matrixA, double[][] matrixB) {
+        if (matrixA.length != matrixB.length || matrixA[0].length != matrixB[0].length) {
+            throw new IllegalArgumentException("Matrices must be of the same size for subtraction.");
+        }
+
+        double[][] result = new double[matrixA.length][matrixA[0].length];
+
+        for (int i = 0; i < matrixA.length; i++) {
+            for (int j = 0; j < matrixA[i].length; j++) {
+                result[i][j] = matrixA[i][j] - matrixB[i][j];
+            }
+        }
+
+        return result;
+    }
+
+    // Method to multiply two matrices
+    public double[][] multiplyMatrices(double[][] matrixA, double[][] matrixB) {
+        if (matrixA[0].length != matrixB.length) {
+            throw new IllegalArgumentException("Matrix A's columns must equal Matrix B's rows for multiplication.");
+        }
+
+        double[][] result = new double[matrixA.length][matrixB[0].length];
+
+        for (int i = 0; i < matrixA.length; i++) {
+            for (int j = 0; j < matrixB[0].length; j++) {
+                result[i][j] = 0;
+                for (int k = 0; k < matrixA[0].length; k++) {
+                    result[i][j] += matrixA[i][k] * matrixB[k][j];
+                }
+            }
+        }
+
+        return result;
+    }
+
+    // Method to transpose a matrix
+    public double[][] transposeMatrix(double[][] matrix) {
+        double[][] result = new double[matrix[0].length][matrix.length];
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                result[j][i] = matrix[i][j];
+            }
+        }
+
+        return result;
+    }
+
+    // Method to calculate the determinant of a matrix
+    public double determinant(double[][] matrix) {
+        if (matrix.length != matrix[0].length) {
+            throw new IllegalArgumentException("Matrix must be square to calculate determinant.");
+        }
+
+        return calculateDeterminant(matrix);
+    }
+
+    // Helper method to calculate the determinant recursively
+    private double calculateDeterminant(double[][] matrix) {
+        int n = matrix.length;
+
+        if (n == 1) {
+            return matrix[0][0];
+        }
+
+        if (n == 2) {
+            return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+        }
+
+        double determinant = 0;
+        for (int i = 0; i < n; i++) {
+            double[][] subMatrix = getSubMatrix(matrix, 0, i);
+            determinant += Math.pow(-1, i) * matrix[0][i] * calculateDeterminant(subMatrix);
+        }
+
+        return determinant;
+    }
+
+    // Method to get a submatrix excluding a specific row and column
+    private double[][] getSubMatrix(double[][] matrix, int row, int col) {
+        int n = matrix.length;
+        double[][] subMatrix = new double[n - 1][n - 1];
+        int subMatrixRow = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (i == row) continue;
+
+            int subMatrixCol = 0;
+            for (int j = 0; j < n; j++) {
+                if (j == col) continue;
+
+                subMatrix[subMatrixRow][subMatrixCol] = matrix[i][j];
+                subMatrixCol++;
+            }
+            subMatrixRow++;
+        }
+
+        return subMatrix;
+    }
+
+    // Method to calculate the inverse of a matrix
+    public double[][] inverseMatrix(double[][] matrix) {
+        int n = matrix.length;
+
+        if (n != matrix[0].length) {
+            throw new IllegalArgumentException("Matrix must be square to find its inverse.");
+        }
+
+        double determinant = determinant(matrix);
+        if (determinant == 0) {
+            throw new IllegalArgumentException("Matrix is singular, no inverse exists.");
+        }
+
+        double[][] adjoint = adjointMatrix(matrix);
+        double[][] inverse = new double[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                inverse[i][j] = adjoint[i][j] / determinant;
+            }
+        }
+
+        return inverse;
+    }
+
+    // Method to calculate the adjoint of a matrix
+    private double[][] adjointMatrix(double[][] matrix) {
+        int n = matrix.length;
+        double[][] adjoint = new double[n][n];
+
+        if (n == 1) {
+            adjoint[0][0] = 1;
+            return adjoint;
+        }
+
+        int sign = 1;
+        double[][] temp = new double[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                getCofactor(matrix, temp, i, j, n);
+                adjoint[j][i] = sign * calculateDeterminant(temp);
+                sign = -sign;
+            }
+        }
+
+        return adjoint;
+    }
+
+    // Method to get the cofactor of a matrix
+    private void getCofactor(double[][] matrix, double[][] temp, int p, int q, int n) {
+        int i = 0, j = 0;
+
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (row != p && col != q) {
+                    temp[i][j++] = matrix[row][col];
+
+                    if (j == n - 1) {
+                        j = 0;
+                        i++;
+                    }
+                }
+            }
+        }
+    }
+}
