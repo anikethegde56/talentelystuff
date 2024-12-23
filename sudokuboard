@@ -1,0 +1,193 @@
+public class SudokuValidator {
+
+    // Main method to validate the Sudoku board
+    public static void main(String[] args) {
+        char[][] board = {
+                {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+                {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+                {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+                {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+                {'4', '.', '9', '.', '.', '8', '.', '.', '1'},
+                {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+                {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+                {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+                {'.', '.', '.', '.', '8', '.', '.', '7', '9'}
+        };
+
+        SudokuValidator validator = new SudokuValidator();
+        if (validator.isValidSudoku(board)) {
+            System.out.println("The Sudoku board is valid.");
+        } else {
+            System.out.println("The Sudoku board is invalid.");
+        }
+    }
+
+    // Method to check if the Sudoku board is valid
+    public boolean isValidSudoku(char[][] board) {
+        // Check each row, column, and 3x3 subgrid for validity
+        for (int i = 0; i < 9; i++) {
+            // Check the i-th row, i-th column, and the i-th 3x3 subgrid
+            if (!isValidRow(board, i) || !isValidColumn(board, i) || !isValidSubgrid(board, i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Method to check if the i-th row is valid
+    private boolean isValidRow(char[][] board, int row) {
+        boolean[] seen = new boolean[9]; // Tracks digits seen in the row
+        for (int col = 0; col < 9; col++) {
+            char current = board[row][col];
+            if (current != '.') {
+                int num = current - '1'; // Convert character to index (1 -> 0, 9 -> 8)
+                if (seen[num]) {
+                    return false; // Duplicate found
+                }
+                seen[num] = true;
+            }
+        }
+        return true;
+    }
+
+    // Method to check if the i-th column is valid
+    private boolean isValidColumn(char[][] board, int col) {
+        boolean[] seen = new boolean[9]; // Tracks digits seen in the column
+        for (int row = 0; row < 9; row++) {
+            char current = board[row][col];
+            if (current != '.') {
+                int num = current - '1'; // Convert character to index (1 -> 0, 9 -> 8)
+                if (seen[num]) {
+                    return false; // Duplicate found
+                }
+                seen[num] = true;
+            }
+        }
+        return true;
+    }
+
+    // Method to check if the i-th 3x3 subgrid is valid
+    private boolean isValidSubgrid(char[][] board, int index) {
+        boolean[] seen = new boolean[9]; // Tracks digits seen in the subgrid
+        int rowStart = (index / 3) * 3;
+        int colStart = (index % 3) * 3;
+        for (int row = rowStart; row < rowStart + 3; row++) {
+            for (int col = colStart; col < colStart + 3; col++) {
+                char current = board[row][col];
+                if (current != '.') {
+                    int num = current - '1'; // Convert character to index (1 -> 0, 9 -> 8)
+                    if (seen[num]) {
+                        return false; // Duplicate found
+                    }
+                    seen[num] = true;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Additional helper method to print the Sudoku board (for debugging)
+    public void printBoard(char[][] board) {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                System.out.print(board[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Helper method to initialize an empty board
+    public char[][] initializeBoard() {
+        return new char[][] {
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', ".", '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '.'}
+        };
+    }
+
+    // Method to validate a board with empty spots filled in by the user
+    public boolean isFilledSudoku(char[][] board) {
+        // Check that all filled-in cells follow Sudoku rules
+        return isValidSudoku(board);
+    }
+
+    // Additional methods to validate Sudoku for specific use cases, like user-defined puzzles
+    public boolean validateUserBoard(char[][] board) {
+        if (board == null || board.length != 9 || board[0].length != 9) {
+            System.out.println("Invalid board size.");
+            return false;
+        }
+        return isValidSudoku(board);
+    }
+
+    // Method to simulate the solution process (e.g., solver) if needed
+    public boolean solveSudoku(char[][] board) {
+        return solve(board);
+    }
+
+    // Helper method for solving Sudoku using backtracking
+    private boolean solve(char[][] board) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board[row][col] == '.') {
+                    for (char num = '1'; num <= '9'; num++) {
+                        if (isSafe(board, row, col, num)) {
+                            board[row][col] = num;
+                            if (solve(board)) {
+                                return true;
+                            }
+                            board[row][col] = '.'; // Backtrack
+                        }
+                    }
+                    return false; // No valid number found
+                }
+            }
+        }
+        return true; // All cells filled
+    }
+
+    // Helper method to check if a number is safe to place at the position (row, col)
+    private boolean isSafe(char[][] board, int row, int col, char num) {
+        return isValidRow(board, row, num) && isValidColumn(board, col, num) && isValidSubgrid(board, row, col, num);
+    }
+
+    // Validates if placing a number in the row is safe
+    private boolean isValidRow(char[][] board, int row, char num) {
+        for (int col = 0; col < 9; col++) {
+            if (board[row][col] == num) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Validates if placing a number in the column is safe
+    private boolean isValidColumn(char[][] board, int col, char num) {
+        for (int row = 0; row < 9; row++) {
+            if (board[row][col] == num) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Validates if placing a number in the 3x3 subgrid is safe
+    private boolean isValidSubgrid(char[][] board, int row, int col, char num) {
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int r = startRow; r < startRow + 3; r++) {
+            for (int c = startCol; c < startCol + 3; c++) {
+                if (board[r][c] == num) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
